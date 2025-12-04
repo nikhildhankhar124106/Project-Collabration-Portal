@@ -14,8 +14,12 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
-# Allowed hosts
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+# Allowed hosts - handle both comma-separated and single values
+allowed_hosts_str = config('ALLOWED_HOSTS', default='')
+if ',' in allowed_hosts_str:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+else:
+    ALLOWED_HOSTS = [allowed_hosts_str.strip()] if allowed_hosts_str.strip() else []
 
 # CSRF Trusted Origins (for form submissions)
 # This fixes CSRF verification errors in production
