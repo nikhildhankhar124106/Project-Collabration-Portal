@@ -77,9 +77,9 @@ class ProjectDetailView(ProjectMemberRequiredMixin, DetailView):
         # Annotate tasks with access information
         tasks_with_access = []
         for task in tasks:
+            # User can access if: owner, creator, or assignee
             task.user_can_access = (
                 is_owner or 
-                has_edit_access or 
                 task.created_by == user or 
                 task.assignees.filter(pk=user.pk).exists()
             )
@@ -275,10 +275,10 @@ class TaskDetailView(ProjectMemberRequiredMixin, DetailView):
         is_owner = is_project_owner(user, project)
         is_creator = task.created_by == user
         is_assignee = task.assignees.filter(pk=user.pk).exists()
-        has_edit_access = has_project_edit_access(user, project)
         
-        # Allow access if: owner, creator, assignee, or has project edit access
-        if not (is_owner or is_creator or is_assignee or has_edit_access):
+        # Allow access ONLY if: owner, creator, or assignee
+        # Editors/viewers who are not assigned cannot access
+        if not (is_owner or is_creator or is_assignee):
             messages.error(request, 'You do not have permission to view this task. Only assigned members can access it.')
             return redirect('project_detail', pk=project.pk)
         
