@@ -1,487 +1,195 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Collab Apps{% endblock %}</title>
-
+    
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
+    
     <style>
         :root {
-            /* Modern Professional Color Palette */
-            --primary-color: #4F46E5;
-            --primary-dark: #4338CA;
-            --primary-light: #6366F1;
-            --secondary-color: #7C3AED;
-            --secondary-dark: #6D28D9;
-            --accent-color: #10B981;
-            --accent-dark: #059669;
-            --danger-color: #EF4444;
-            --warning-color: #F59E0B;
-            --info-color: #3B82F6;
-
-            /* Gradients */
-            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            --success-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%);
-            --warm-gradient: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
-
-            /* Neutral Colors */
-            --gray-50: #F8FAFC;
-            --gray-100: #F1F5F9;
-            --gray-200: #E2E8F0;
-            --gray-300: #CBD5E1;
-            --gray-400: #94A3B8;
-            --gray-500: #64748B;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1E293B;
-            --gray-900: #0F172A;
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-
-            /* Transitions */
-            --transition-fast: all 0.15s ease;
-            --transition-base: all 0.3s ease;
-            --transition-slow: all 0.5s ease;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         }
-
-        * {
-            transition: var(--transition-fast);
-        }
-
+        
         body {
             min-height: 100vh;
-            background: linear-gradient(to bottom right, var(--gray-50), var(--gray-100));
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: var(--gray-800);
-            line-height: 1.6;
+            background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
         }
-
-        /* Navbar Styling */
+        
         .navbar {
             background: var(--primary-gradient) !important;
-            box-shadow: var(--shadow-md);
-            padding: 1rem 0;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+        
         .navbar-brand {
-            font-weight: 800;
+            font-weight: 700;
             font-size: 1.5rem;
             color: white !important;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
-
-        .navbar-brand i {
-            font-size: 1.8rem;
-        }
-
+        
         .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
+            color: rgba(255,255,255,0.9) !important;
             font-weight: 500;
-            transition: var(--transition-base);
-            padding: 0.5rem 1rem !important;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            transition: all 0.3s;
         }
-
+        
         .nav-link:hover {
             color: white !important;
-            background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-
-        /* Notification Badge */
+        
         .notification-badge {
             position: absolute;
             top: -5px;
             right: -5px;
-            background: var(--danger-color);
+            background: #dc3545;
             color: white;
             border-radius: 50%;
             padding: 2px 6px;
             font-size: 0.7rem;
             font-weight: bold;
-            box-shadow: var(--shadow);
-            animation: pulse 2s infinite;
         }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
+        
         .notification-icon {
             position: relative;
             cursor: pointer;
             font-size: 1.3rem;
         }
-
+        
         .notification-dropdown {
             min-width: 350px;
             max-height: 400px;
             overflow-y: auto;
-            border-radius: 12px;
-            box-shadow: var(--shadow-xl);
-            border: none;
         }
-
+        
         .notification-item {
             padding: 12px;
-            border-bottom: 1px solid var(--gray-200);
-            transition: var(--transition-base);
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
         }
-
+        
         .notification-item:hover {
-            background: var(--gray-50);
+            background: #f8f9fa;
         }
-
+        
         .notification-item.unread {
-            background: #EFF6FF;
+            background: #e7f3ff;
             font-weight: 500;
-            border-left: 3px solid var(--primary-color);
         }
-
-        /* Card Styling */
+        
         .card {
             border: none;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            transition: var(--transition-base);
-            background: white;
-            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-
+        
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-
-        .card-header {
-            background: linear-gradient(to right, var(--gray-50), white);
-            border-bottom: 2px solid var(--gray-200);
-            font-weight: 600;
-            color: var(--gray-700);
-            padding: 1rem 1.5rem;
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* Button Styling */
-        .btn {
-            font-weight: 600;
-            padding: 0.625rem 1.5rem;
-            border-radius: 10px;
-            transition: var(--transition-base);
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
+        
         .btn-primary {
             background: var(--primary-gradient);
-            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
         }
-
+        
         .btn-primary:hover {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
+        
         .btn-success {
             background: var(--success-gradient);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: linear-gradient(135deg, var(--accent-dark) 0%, #047857 100%);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-outline-primary {
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            background: white;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-outline-danger {
-            border: 2px solid var(--danger-color);
-            color: var(--danger-color);
-            background: white;
-        }
-
-        .btn-outline-danger:hover {
-            background: var(--danger-color);
-            color: white;
-        }
-
-        /* Badge Styling */
-        .badge {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.875rem;
-            letter-spacing: 0.025em;
-        }
-
-        .bg-success {
-            background: var(--accent-color) !important;
-        }
-
-        .bg-primary {
-            background: var(--primary-color) !important;
-        }
-
-        .bg-warning {
-            background: var(--warning-color) !important;
-        }
-
-        .bg-danger {
-            background: var(--danger-color) !important;
-        }
-
-        .bg-info {
-            background: var(--info-color) !important;
-        }
-
-        /* Alert Styling */
-        .alert {
-            border-radius: 12px;
             border: none;
-            padding: 1rem 1.5rem;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
         }
-
-        .alert i {
-            font-size: 1.25rem;
-        }
-
-        .alert-success {
-            background: linear-gradient(to right, #D1FAE5, #A7F3D0);
-            color: #065F46;
-        }
-
-        .alert-danger {
-            background: linear-gradient(to right, #FEE2E2, #FECACA);
-            color: #991B1B;
-        }
-
-        .alert-warning {
-            background: linear-gradient(to right, #FEF3C7, #FDE68A);
-            color: #92400E;
-        }
-
-        .alert-info {
-            background: linear-gradient(to right, #DBEAFE, #BFDBFE);
-            color: #1E40AF;
-        }
-
-        /* Form Styling */
-        .form-control,
-        .form-select {
-            border-radius: 10px;
-            border: 2px solid var(--gray-300);
-            padding: 0.75rem 1rem;
-            transition: var(--transition-base);
-            font-size: 0.95rem;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            outline: none;
-        }
-
-        .form-label {
+        
+        .badge {
+            padding: 6px 12px;
+            border-radius: 6px;
             font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
         }
-
-        /* Page Header */
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
         .page-header {
             margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #667eea;
         }
-
-        .page-header h1 {
-            color: var(--gray-900);
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        /* Tab Navigation */
+        
+        /* BOLD VISIBLE TAB NAVIGATION */
         .nav-tabs {
-            border-bottom: 3px solid var(--primary-color);
-            margin-bottom: 2rem;
+            border-bottom: 4px solid #667eea;
+            margin-bottom: 1.5rem;
             background: white;
-            padding: 0.75rem 0.75rem 0 0.75rem;
-            border-radius: 16px 16px 0 0;
-            box-shadow: var(--shadow);
-        }
-
-        .nav-tabs .nav-link {
-            color: var(--gray-600);
-            font-weight: 700;
-            font-size: 1rem;
-            padding: 1rem 2rem;
-            border: 2px solid transparent;
+            padding: 10px 10px 0 10px;
             border-radius: 12px 12px 0 0;
-            margin-right: 0.5rem;
-            background: var(--gray-100);
-            transition: var(--transition-base);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
+        
+        .nav-tabs .nav-link {
+            color: #1a202c;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 16px 32px;
+            border: 3px solid #a0aec0;
+            border-radius: 12px 12px 0 0;
+            margin-right: 8px;
+            background: linear-gradient(to bottom, #cbd5e0, #a0aec0);
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        
         .nav-tabs .nav-link:hover {
-            color: var(--primary-color);
-            background: var(--gray-50);
-            border-color: var(--primary-light);
-            transform: translateY(-3px);
+            color: #667eea;
+            background: linear-gradient(to bottom, #d4e4ff, #a8c5ff);
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
-
+        
         .nav-tabs .nav-link.active {
             color: white !important;
-            background: var(--primary-gradient);
-            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
             font-weight: 800;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
             transform: translateY(-3px);
         }
-
+        
         .nav-tabs .nav-link i {
-            margin-right: 0.5rem;
-            font-size: 1.2rem;
-        }
-
-        /* List Group */
-        .list-group-item {
-            border: 1px solid var(--gray-200);
-            border-radius: 12px !important;
-            margin-bottom: 0.75rem;
-            transition: var(--transition-base);
-            background: white;
-        }
-
-        .list-group-item:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateX(5px);
-            border-color: var(--primary-color);
-        }
-
-        /* Modal */
-        .modal-content {
-            border-radius: 16px;
-            border: none;
-            box-shadow: var(--shadow-xl);
-        }
-
-        .modal-header {
-            background: var(--primary-gradient);
-            color: white;
-            border-radius: 16px 16px 0 0;
-            padding: 1.5rem;
-        }
-
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
-        }
-
-        /* Dropdown */
-        .dropdown-menu {
-            border-radius: 12px;
-            border: none;
-            box-shadow: var(--shadow-lg);
-            padding: 0.5rem;
-        }
-
-        .dropdown-item {
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            transition: var(--transition-base);
-        }
-
-        .dropdown-item:hover {
-            background: var(--gray-100);
-            color: var(--primary-color);
-        }
-
-        /* Utility Classes */
-        .text-muted {
-            color: var(--gray-500) !important;
-        }
-
-        .bg-light {
-            background: var(--gray-50) !important;
-        }
-
-        /* Smooth Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--gray-100);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--gray-400);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-500);
+            margin-right: 10px;
+            font-size: 1.3rem;
         }
     </style>
-
+    
     {% block extra_css %}{% endblock %}
 </head>
-
 <body>
     <!-- Navbar -->
     {% if user.is_authenticated %}
@@ -490,11 +198,11 @@
             <a class="navbar-brand" href="{% url 'dashboard' %}">
                 <i class="bi bi-diagram-3-fill"></i> Collab Apps
             </a>
-
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
@@ -508,17 +216,15 @@
                         </a>
                     </li>
                 </ul>
-
+                
                 <ul class="navbar-nav">
                     <!-- Notification Icon -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link notification-icon" href="#" id="notificationDropdown" role="button"
-                            data-bs-toggle="dropdown">
+                        <a class="nav-link notification-icon" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-bell-fill"></i>
                             <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
                         </a>
-                        <div class="dropdown-menu dropdown-menu-end notification-dropdown"
-                            aria-labelledby="notificationDropdown">
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
                             <div class="px-3 py-2 border-bottom">
                                 <h6 class="mb-0">Notifications</h6>
                             </div>
@@ -529,28 +235,24 @@
                                 </div>
                             </div>
                             <div class="px-3 py-2 border-top text-center">
-                                <a href="{% url 'notifications' %}" class="small text-decoration-none">View all
-                                    notifications</a>
+                                <a href="{% url 'notifications' %}" class="small text-decoration-none">View all notifications</a>
                             </div>
                         </div>
                     </li>
-
+                    
                     <!-- User Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                            data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{% url 'notifications' %}">
-                                    <i class="bi bi-bell"></i> Notifications
-                                </a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
+                                <i class="bi bi-bell"></i> Notifications
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a></li>
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a></li>
                         </ul>
                     </li>
                 </ul>
@@ -558,35 +260,35 @@
         </div>
     </nav>
     {% endif %}
-
+    
     <!-- Main Content -->
     <div class="container">
         <!-- Messages -->
         {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {% if message.tags == 'error' %}
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            {% elif message.tags == 'success' %}
-            <i class="bi bi-check-circle-fill"></i>
-            {% elif message.tags == 'warning' %}
-            <i class="bi bi-exclamation-circle-fill"></i>
-            {% else %}
-            <i class="bi bi-info-circle-fill"></i>
-            {% endif %}
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {% if message.tags == 'error' %}
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    {% elif message.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle-fill"></i>
+                    {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
         {% endif %}
-
+        
         <!-- Page Content -->
         {% block content %}{% endblock %}
     </div>
-
+    
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    
     <!-- Notification System -->
     {% if user.is_authenticated %}
     <script>
@@ -605,16 +307,15 @@
                 })
                 .catch(error => console.error('Error fetching notifications:', error));
         }
-
+        
         // Update notification count on page load
         updateNotificationCount();
-
+        
         // Update every 30 seconds
         setInterval(updateNotificationCount, 30000);
     </script>
     {% endif %}
-
+    
     {% block extra_js %}{% endblock %}
 </body>
-
 </html>
