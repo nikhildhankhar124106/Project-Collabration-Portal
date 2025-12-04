@@ -15,16 +15,29 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 SECRET_KEY = config('SECRET_KEY')
 
 # Allowed hosts - handle both comma-separated and single values
-allowed_hosts_str = config('ALLOWED_HOSTS', default='')
-if ',' in allowed_hosts_str:
-    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+# Try python-decouple first, then fall back to os.environ
+try:
+    allowed_hosts_str = config('ALLOWED_HOSTS', default='')
+except Exception:
+    allowed_hosts_str = os.environ.get('ALLOWED_HOSTS', '')
+
+# Parse the allowed hosts string
+if allowed_hosts_str:
+    if ',' in allowed_hosts_str:
+        ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+    else:
+        ALLOWED_HOSTS = [allowed_hosts_str.strip()]
 else:
-    ALLOWED_HOSTS = [allowed_hosts_str.strip()] if allowed_hosts_str.strip() else []
+    # Fallback for Render - allow the Render domain
+    ALLOWED_HOSTS = ['*.onrender.com']
+
+# Debug logging (will appear in Render logs)
+print(f"DEBUG: ALLOWED_HOSTS set to: {ALLOWED_HOSTS}")
 
 # CSRF Trusted Origins (for form submissions)
 # This fixes CSRF verification errors in production
 CSRF_TRUSTED_ORIGINS = [
-    f'https://{host}' for host in ALLOWED_HOSTS if host
+    f'https://{host}' for host in ALLOWED_HOSTS if host and not host.startswith('*')
 ]
 
 # Database
