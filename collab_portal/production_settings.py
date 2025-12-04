@@ -17,6 +17,12 @@ SECRET_KEY = config('SECRET_KEY')
 # Allowed hosts
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
+# CSRF Trusted Origins (for form submissions)
+# This fixes CSRF verification errors in production
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{host}' for host in ALLOWED_HOSTS if host
+]
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {

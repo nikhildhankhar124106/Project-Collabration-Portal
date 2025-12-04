@@ -8,10 +8,46 @@ This workflow guides you through deploying the Django Project Collaboration Port
 
 ## Choose Your Platform
 
-1. **Railway** (Recommended for beginners) - Free tier available
-2. **Heroku** - Traditional choice, $5+/month
-3. **PythonAnywhere** - Django-specific, free tier available
-4. **DigitalOcean/AWS** - Advanced, full control
+1. **Render** (Recommended) - Modern platform, free tier available, easy setup
+2. **Railway** - Good alternative, free tier available
+3. **Heroku** - Traditional choice, $5+/month
+4. **PythonAnywhere** - Django-specific, free tier available
+5. **DigitalOcean/AWS** - Advanced, full control
+
+
+## Quick Start with Render (Recommended)
+
+### 1. Ensure code is in Git repository
+```bash
+cd "c:\Users\nikhi\Desktop\PROJ PORTAL"
+git add .
+git commit -m "Prepare for Render deployment"
+git push origin main
+```
+
+### 2. Deploy using Blueprint
+- Go to https://dashboard.render.com/
+- Click "New +" → "Blueprint"
+- Connect your Git repository
+- Select your project repository
+- Render will detect `render.yaml` automatically
+- Set `ALLOWED_HOSTS` to your Render URL (e.g., `your-app-name.onrender.com`)
+- Click "Apply" to deploy
+
+### 3. Monitor deployment
+Watch the build logs. Deployment takes 5-10 minutes.
+
+### 4. Create superuser
+After deployment succeeds:
+- Go to your web service in Render Dashboard
+- Click "Shell" tab
+- Run: `python manage.py createsuperuser`
+
+### 5. Verify deployment
+Visit: `https://your-app-name.onrender.com`
+
+**For detailed instructions, see the comprehensive deployment guide in artifacts.**
+
 
 ## Quick Start with Railway (Easiest)
 
