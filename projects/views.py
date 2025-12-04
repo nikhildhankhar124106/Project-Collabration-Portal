@@ -62,6 +62,7 @@ class ProjectDetailView(ProjectMemberRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.object
+        user = self.request.user
         
         # Get tasks with filters
         tasks = project.tasks.all()
@@ -69,15 +70,30 @@ class ProjectDetailView(ProjectMemberRequiredMixin, DetailView):
         if status_filter:
             tasks = tasks.filter(status=status_filter)
         
-        context['tasks'] = tasks
+        # Add access information for each task
+        is_owner = is_project_owner(user, project)
+        has_edit_access = has_project_edit_access(user, project)
+        
+        # Annotate tasks with access information
+        tasks_with_access = []
+        for task in tasks:
+            task.user_can_access = (
+                is_owner or 
+                has_edit_access or 
+                task.created_by == user or 
+                task.assignees.filter(pk=user.pk).exists()
+            )
+            tasks_with_access.append(task)
+        
+        context['tasks'] = tasks_with_access
         context['members'] = project.memberships.select_related('user').all()
         context['files'] = project.files.select_related('uploaded_by').all()[:10]
         context['comments'] = project.comments.select_related('user').all()
         context['activities'] = project.activities.select_related('user').all()[:20]
         context['comment_form'] = CommentForm()
         context['file_form'] = FileUploadForm()
-        context['is_owner'] = is_project_owner(self.request.user, project)
-        context['can_edit'] = has_project_edit_access(self.request.user, project)
+        context['is_owner'] = is_owner
+        context['can_edit'] = has_edit_access
         
         return context
 
@@ -248,6 +264,25 @@ class TaskDetailView(ProjectMemberRequiredMixin, DetailView):
     model = Task
     template_name = 'projects/task_detail.html'
     context_object_name = 'task'
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check if user has access to view this task."""
+        task = self.get_object()
+        project = task.project
+        user = request.user
+        
+        # Check if user has access to this task
+        is_owner = is_project_owner(user, project)
+        is_creator = task.created_by == user
+        is_assignee = task.assignees.filter(pk=user.pk).exists()
+        has_edit_access = has_project_edit_access(user, project)
+        
+        # Allow access if: owner, creator, assignee, or has project edit access
+        if not (is_owner or is_creator or is_assignee or has_edit_access):
+            messages.error(request, 'You do not have permission to view this task. Only assigned members can access it.')
+            return redirect('project_detail', pk=project.pk)
+        
+        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

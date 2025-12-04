@@ -115,20 +115,39 @@
         {% if tasks %}
         <div class="list-group">
             {% for task in tasks %}
-            <div class="list-group-item">
+            <div class="list-group-item {% if not task.user_can_access %}opacity-50{% endif %}">
                 <div class="d-flex w-100 justify-content-between align-items-start">
+                    {% if task.user_can_access %}
                     <a href="{% url 'task_detail' project.pk task.pk %}"
                         class="flex-grow-1 text-decoration-none text-dark">
                         <h6 class="mb-1">{{ task.title }}</h6>
                         <p class="mb-1 text-muted small">{{ task.description|truncatewords:15 }}</p>
                         <div class="mt-2">
                             <span class="badge {{ task.get_status_badge_class }}">{{ task.get_status_display }}</span>
-                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display }}</span>
+                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display
+                                }}</span>
                             {% if task.due_date %}
                             <span class="badge bg-secondary"><i class="bi bi-calendar"></i> {{ task.due_date }}</span>
                             {% endif %}
                         </div>
                     </a>
+                    {% else %}
+                    <div class="flex-grow-1" style="cursor: not-allowed;" title="You are not assigned to this task">
+                        <h6 class="mb-1">
+                            {{ task.title }}
+                            <i class="bi bi-lock-fill text-muted small"></i>
+                        </h6>
+                        <p class="mb-1 text-muted small">{{ task.description|truncatewords:15 }}</p>
+                        <div class="mt-2">
+                            <span class="badge {{ task.get_status_badge_class }}">{{ task.get_status_display }}</span>
+                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display
+                                }}</span>
+                            {% if task.due_date %}
+                            <span class="badge bg-secondary"><i class="bi bi-calendar"></i> {{ task.due_date }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="d-flex align-items-center ms-3">
                         {% if task.assignees.count > 0 %}
                         <div class="small text-muted me-3">
