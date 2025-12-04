@@ -55,14 +55,31 @@ class ProjectMemberRequiredMixin(LoginRequiredMixin):
 class ProjectEditorRequiredMixin(LoginRequiredMixin):
     """
     Mixin to require that the user is an owner or editor of the project.
+    For task editing, also allows task creators.
     """
     def dispatch(self, request, *args, **kwargs):
         project_pk = kwargs.get('pk') or kwargs.get('project_pk')
         if project_pk:
             project = get_object_or_404(Project, pk=project_pk)
-            if not has_project_edit_access(request.user, project):
-                messages.error(request, f'You do not have permission to edit this project. Only owners and editors can perform this action.')
-                return redirect('project_detail', pk=project.pk)
+            
+            # Check if this is a task edit URL
+            if 'task' in request.path.lower() and '/edit/' in request.path.lower() and kwargs.get('pk'):
+                # This is a task edit, check task-specific permissions
+                try:
+                    task = Task.objects.get(pk=kwargs.get('pk'))
+                    # Allow if: owner, creator, or project editor
+                    if not (is_project_owner(request.user, project) or 
+                            task.created_by == request.user or 
+                            has_project_edit_access(request.user, project)):
+                        messages.error(request, 'You do not have permission to edit this task.')
+                        return redirect('task_detail', project_pk=project.pk, pk=task.pk)
+                except Task.DoesNotExist:
+                    pass
+            else:
+                # Regular project-level edit check
+                if not has_project_edit_access(request.user, project):
+                    messages.error(request, f'You do not have permission to edit this project. Only owners and editors can perform this action.')
+                    return redirect('project_detail', pk=project.pk)
         return super().dispatch(request, *args, **kwargs)
 
 
