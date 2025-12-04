@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.name }} - Collab Apps{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="display-6 fw-bold">{{ project.name }}</h1>
+            <p class="text-muted mb-0">{{ project.description }}</p>
+            <div class="mt-2">
+                <span class="badge {% if project.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} me-2">
+                    {{ project.get_status_display }}
+                </span>
+                <span class="text-muted small">
+                    <i class="bi bi-person-fill"></i> Owner: {{ project.owner.username }}
+                </span>
+                <span class="text-muted small ms-3">
+                    <i class="bi bi-clock"></i> Created {{ project.created_at|date:"M d, Y" }}
+                </span>
+            </div>
+        </div>
+        <div>
+            {% if is_owner %}
+            <a href="{% url 'project_update' project.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'manage_members' project.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-people"></i> Manage Members
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button">
+            <i class="bi bi-list-task"></i> Tasks ({{ tasks.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button">
+            <i class="bi bi-people"></i> Members ({{ members.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="files-tab" data-bs-toggle="tab" data-bs-target="#files" type="button">
+            <i class="bi bi-file-earmark"></i> Files ({{ files.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button">
+            <i class="bi bi-chat-dots"></i> Comments ({{ comments.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button">
+            <i class="bi bi-activity"></i> Activity
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="projectTabsContent">
+    <!-- Tasks Tab -->
+    <div class="tab-pane fade show active" id="tasks" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Tasks</h4>
+            {% if can_edit %}
+            <a href="{% url 'task_create' project.pk %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Task
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Task Filters -->
+        <div class="btn-group mb-3" role="group">
+            <a href="?status="
+                class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">All</a>
+            <a href="?status=todo"
+                class="btn btn-outline-secondary {% if request.GET.status == 'todo' %}active{% endif %}">To Do</a>
+            <a href="?status=in_progress"
+                class="btn btn-outline-secondary {% if request.GET.status == 'in_progress' %}active{% endif %}">In
+                Progress</a>
+            <a href="?status=done"
+                class="btn btn-outline-secondary {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
+        </div>
+
+        {% if tasks %}
+        <div class="list-group">
+            {% for task in tasks %}
+            <a href="{% url 'task_detail' project.pk task.pk %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ task.title }}</h6>
+                        <p class="mb-1 text-muted small">{{ task.description|truncatewords:15 }}</p>
+                        <div class="mt-2">
+                            <span class="badge {{ task.get_status_badge_class }}">{{ task.get_status_display }}</span>
+                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display
+                                }}</span>
+                            {% if task.due_date %}
+                            <span class="badge bg-secondary"><i class="bi bi-calendar"></i> {{ task.due_date }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-end ms-3">
+                        {% if task.assignees.count > 0 %}
+                        <div class="small text-muted">
+                            <i class="bi bi-person-check"></i> {{ task.assignees.count }} assigned
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-list-task" style="font-size: 3rem;"></i>
+            <p>No tasks yet</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Members Tab -->
+    <div class="tab-pane fade" id="members" role="tabpanel">
+        <h4 class="mb-3">Project Members</h4>
+        <div class="row g-3">
+            {% for membership in members %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">
+                                    <i class="bi bi-person-circle"></i> {{ membership.user.username }}
+                                </h6>
+                                {% if membership.user.email %}
+                                <small class="text-muted">{{ membership.user.email }}</small>
+                                {% endif %}
+                            </div>
+                            <span class="badge bg-primary">{{ membership.get_role_display }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Files Tab -->
+    <div class="tab-pane fade" id="files" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Files</h4>
+            {% if can_edit %}
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+                <i class="bi bi-upload"></i> Upload File
+            </button>
+            {% endif %}
+        </div>
+
+        {% if files %}
+        <div class="list-group">
+            {% for file in files %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">
+                            <i class="bi bi-file-earmark-fill"></i> {{ file.original_filename }}
+                        </h6>
+                        <small class="text-muted">
+                            Uploaded by {{ file.uploaded_by.username }} • {{ file.get_size_display }} • {{
+                            file.uploaded_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{% url 'download_file' file.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download"></i> Download
+                        </a>
+                        {% if can_edit or file.uploaded_by == user %}
+                        <form method="post" action="{% url 'delete_file' file.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this file?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-file-earmark-x" style="font-size: 3rem;"></i>
+            <p>No files uploaded yet</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Comments Tab -->
+    <div class="tab-pane fade" id="comments" role="tabpanel">
+        <h4 class="mb-3">Comments</h4>
+
+        <!-- Add Comment Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="post" action="{% url 'add_project_comment' project.pk %}">
+                    {% csrf_token %}
+                    {{ comment_form.text }}
+                    <button type="submit" class="btn btn-primary mt-2">
+                        <i class="bi bi-send"></i> Post Comment
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Comments List -->
+        {% if comments %}
+        {% for comment in comments %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>{{ comment.user.username }}</strong>
+                        <small class="text-muted ms-2">{{ comment.created_at|timesince }} ago</small>
+                    </div>
+                    {% if comment.user == user or is_owner %}
+                    <form method="post" action="{% url 'delete_comment' comment.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete comment?')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                <p class="mt-2 mb-0">{{ comment.text }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-chat-dots" style="font-size: 3rem;"></i>
+            <p>No comments yet</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Activity Tab -->
+    <div class="tab-pane fade" id="activity" role="tabpanel">
+        <h4 class="mb-3">Activity Feed</h4>
+        {% if activities %}
+        <div class="list-group">
+            {% for activity in activities %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <i class="bi bi-dot"></i>
+                        <strong>{{ activity.user.username }}</strong> {{ activity.description }}
+                    </div>
+                    <small class="text-muted">{{ activity.created_at|timesince }} ago</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-activity" style="font-size: 3rem;"></i>
+            <p>No activity yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Upload File Modal -->
+<div class="modal fade" id="uploadFileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'upload_project_file' project.pk %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ file_form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

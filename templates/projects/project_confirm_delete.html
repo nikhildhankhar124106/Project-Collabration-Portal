@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Project - Collab Apps{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-body p-4">
+                <h3 class="text-danger mb-4">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Delete Project
+                </h3>
+
+                <p>Are you sure you want to delete the project <strong>"{{ object.name }}"</strong>?</p>
+                <p class="text-danger">This action cannot be undone. All tasks, comments, and files will be permanently
+                    deleted.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Yes, Delete Project
+                        </button>
+                        <a href="{% url 'project_detail' object.pk %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
