@@ -252,12 +252,27 @@ class TaskDetailView(ProjectMemberRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task = self.object
-        context['project'] = task.project
+        project = task.project
+        user = self.request.user
+        
+        context['project'] = project
         context['comments'] = task.comments.select_related('user').all()
         context['files'] = task.files.select_related('uploaded_by').all()
         context['comment_form'] = CommentForm()
         context['file_form'] = FileUploadForm()
-        context['can_edit'] = has_project_edit_access(self.request.user, task.project)
+        
+        # Task-specific permissions
+        context['is_owner'] = is_project_owner(user, project)
+        context['is_creator'] = task.created_by == user
+        context['is_assignee'] = task.assignees.filter(pk=user.pk).exists()
+        
+        # Can edit if: owner, creator, or has project edit access
+        context['can_edit'] = (
+            context['is_owner'] or 
+            context['is_creator'] or 
+            has_project_edit_access(user, project)
+        )
+        
         return context
 
 

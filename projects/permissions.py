@@ -71,3 +71,33 @@ def can_manage_members(user, project):
     Only the project owner can manage members.
     """
     return is_project_owner(user, project)
+
+
+def has_task_access(user, task):
+    """
+    Check if user has access to view/edit a task.
+    Access granted to:
+    - Project owner (always has full access)
+    - Task creator (has access to tasks they created)
+    - Task assignees (have access to assigned tasks)
+    - Project members (have view access)
+    """
+    project = task.project
+    
+    # Owner always has access
+    if is_project_owner(user, project):
+        return True
+    
+    # Task creator has access
+    if task.created_by == user:
+        return True
+    
+    # Assignees have access
+    if task.assignees.filter(pk=user.pk).exists():
+        return True
+    
+    # Project members have view access
+    if is_project_member(user, project):
+        return True
+    
+    return False
