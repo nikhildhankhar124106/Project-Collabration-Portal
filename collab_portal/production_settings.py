@@ -14,30 +14,31 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
-# Allowed hosts - handle both comma-separated and single values
-# Try python-decouple first, then fall back to os.environ
-try:
-    allowed_hosts_str = config('ALLOWED_HOSTS', default='')
-except Exception:
-    allowed_hosts_str = os.environ.get('ALLOWED_HOSTS', '')
+# Allowed hosts configuration
+# Get from environment variable or use Render default
+ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS', '')
 
-# Parse the allowed hosts string
-if allowed_hosts_str:
-    if ',' in allowed_hosts_str:
-        ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+if ALLOWED_HOSTS_ENV:
+    # Parse comma-separated or single value
+    if ',' in ALLOWED_HOSTS_ENV:
+        ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_ENV.split(',') if host.strip()]
     else:
-        ALLOWED_HOSTS = [allowed_hosts_str.strip()]
+        ALLOWED_HOSTS = [ALLOWED_HOSTS_ENV.strip()]
 else:
-    # Fallback for Render - allow the Render domain
-    ALLOWED_HOSTS = ['*.onrender.com']
+    # Hardcoded fallback for Render deployment
+    ALLOWED_HOSTS = [
+        'project-collabration-portal.onrender.com',
+        '*.onrender.com',
+        'localhost',
+        '127.0.0.1',
+    ]
 
-# Debug logging (will appear in Render logs)
-print(f"DEBUG: ALLOWED_HOSTS set to: {ALLOWED_HOSTS}")
+print(f"DEBUG: ALLOWED_HOSTS = {ALLOWED_HOSTS}")
 
-# CSRF Trusted Origins (for form submissions)
-# This fixes CSRF verification errors in production
+# CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
-    f'https://{host}' for host in ALLOWED_HOSTS if host and not host.startswith('*')
+    f'https://{host}' for host in ALLOWED_HOSTS 
+    if host and not host.startswith('*') and host not in ['localhost', '127.0.0.1']
 ]
 
 # Database
