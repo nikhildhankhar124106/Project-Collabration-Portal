@@ -136,15 +136,6 @@ class Comment(models.Model):
     def __str__(self):
         target = self.project or self.task
         return f"Comment by {self.user.username} on {target}"
-    
-    def clean(self):
-        """
-        Validate that comment is linked to either project OR task (not both, not neither).
-        """
-        if self.project and self.task:
-            raise ValidationError('Comment cannot be linked to both project and task.')
-        if not self.project and not self.task:
-            raise ValidationError('Comment must be linked to either a project or a task.')
 
 
 class File(models.Model):

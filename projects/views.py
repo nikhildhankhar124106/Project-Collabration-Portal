@@ -313,7 +313,10 @@ def add_project_comment(request, pk):
             comment.save()
             messages.success(request, 'Comment added successfully!')
         else:
-            messages.error(request, 'Error adding comment.')
+            # Show specific validation errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
     
     return redirect('project_detail', pk=pk)
 
@@ -334,7 +337,10 @@ def add_task_comment(request, pk):
             comment.save()
             messages.success(request, 'Comment added successfully!')
         else:
-            messages.error(request, 'Error adding comment.')
+            # Show specific validation errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
     
     return redirect('task_detail', project_pk=task.project.pk, pk=pk)
 

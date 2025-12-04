@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -140,6 +140,51 @@
             margin-bottom: 2rem;
             padding-bottom: 1rem;
             border-bottom: 3px solid #667eea;
+        }
+        
+        /* BOLD VISIBLE TAB NAVIGATION */
+        .nav-tabs {
+            border-bottom: 4px solid #667eea;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 10px 10px 0 10px;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .nav-tabs .nav-link {
+            color: #1a202c;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 16px 32px;
+            border: 3px solid #a0aec0;
+            border-radius: 12px 12px 0 0;
+            margin-right: 8px;
+            background: linear-gradient(to bottom, #cbd5e0, #a0aec0);
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: #667eea;
+            background: linear-gradient(to bottom, #d4e4ff, #a8c5ff);
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: white !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .nav-tabs .nav-link i {
+            margin-right: 10px;
+            font-size: 1.3rem;
         }
     </style>
     

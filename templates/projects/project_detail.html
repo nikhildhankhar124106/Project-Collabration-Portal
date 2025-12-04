@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block title %}{{ project.name }} - Collab Apps{% endblock %}
 
@@ -33,7 +33,6 @@
     </div>
 </div>
 
-<!-- Tabs -->
 <ul class="nav nav-tabs mb-4" id="projectTabs" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button">
@@ -62,9 +61,7 @@
     </li>
 </ul>
 
-<!-- Tab Content -->
 <div class="tab-content" id="projectTabsContent">
-    <!-- Tasks Tab -->
     <div class="tab-pane fade show active" id="tasks" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>Tasks</h4>
@@ -75,17 +72,11 @@
             {% endif %}
         </div>
 
-        <!-- Task Filters -->
         <div class="btn-group mb-3" role="group">
-            <a href="?status="
-                class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">All</a>
-            <a href="?status=todo"
-                class="btn btn-outline-secondary {% if request.GET.status == 'todo' %}active{% endif %}">To Do</a>
-            <a href="?status=in_progress"
-                class="btn btn-outline-secondary {% if request.GET.status == 'in_progress' %}active{% endif %}">In
-                Progress</a>
-            <a href="?status=done"
-                class="btn btn-outline-secondary {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
+            <a href="?status=" class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">All</a>
+            <a href="?status=todo" class="btn btn-outline-secondary {% if request.GET.status == 'todo' %}active{% endif %}">To Do</a>
+            <a href="?status=in_progress" class="btn btn-outline-secondary {% if request.GET.status == 'in_progress' %}active{% endif %}">In Progress</a>
+            <a href="?status=done" class="btn btn-outline-secondary {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
         </div>
 
         {% if tasks %}
@@ -98,8 +89,7 @@
                         <p class="mb-1 text-muted small">{{ task.description|truncatewords:15 }}</p>
                         <div class="mt-2">
                             <span class="badge {{ task.get_status_badge_class }}">{{ task.get_status_display }}</span>
-                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display
-                                }}</span>
+                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display }}</span>
                             {% if task.due_date %}
                             <span class="badge bg-secondary"><i class="bi bi-calendar"></i> {{ task.due_date }}</span>
                             {% endif %}
@@ -124,7 +114,6 @@
         {% endif %}
     </div>
 
-    <!-- Members Tab -->
     <div class="tab-pane fade" id="members" role="tabpanel">
         <h4 class="mb-3">Project Members</h4>
         <div class="row g-3">
@@ -150,7 +139,6 @@
         </div>
     </div>
 
-    <!-- Files Tab -->
     <div class="tab-pane fade" id="files" role="tabpanel">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4>Files</h4>
@@ -171,8 +159,7 @@
                             <i class="bi bi-file-earmark-fill"></i> {{ file.original_filename }}
                         </h6>
                         <small class="text-muted">
-                            Uploaded by {{ file.uploaded_by.username }} • {{ file.get_size_display }} • {{
-                            file.uploaded_at|date:"M d, Y" }}
+                            Uploaded by {{ file.uploaded_by.username }}  {{ file.get_size_display }}  {{ file.uploaded_at|date:"M d, Y" }}
                         </small>
                     </div>
                     <div>
@@ -182,8 +169,7 @@
                         {% if can_edit or file.uploaded_by == user %}
                         <form method="post" action="{% url 'delete_file' file.pk %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('Delete this file?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this file?')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -201,11 +187,9 @@
         {% endif %}
     </div>
 
-    <!-- Comments Tab -->
     <div class="tab-pane fade" id="comments" role="tabpanel">
         <h4 class="mb-3">Comments</h4>
 
-        <!-- Add Comment Form -->
         <div class="card mb-4">
             <div class="card-body">
                 <form method="post" action="{% url 'add_project_comment' project.pk %}">
@@ -218,7 +202,6 @@
             </div>
         </div>
 
-        <!-- Comments List -->
         {% if comments %}
         {% for comment in comments %}
         <div class="card mb-3">
@@ -231,8 +214,7 @@
                     {% if comment.user == user or is_owner %}
                     <form method="post" action="{% url 'delete_comment' comment.pk %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete comment?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete comment?')">
                             <i class="bi bi-trash"></i>
                         </button>
                     </form>
@@ -250,7 +232,6 @@
         {% endif %}
     </div>
 
-    <!-- Activity Tab -->
     <div class="tab-pane fade" id="activity" role="tabpanel">
         <h4 class="mb-3">Activity Feed</h4>
         {% if activities %}
@@ -276,7 +257,6 @@
     </div>
 </div>
 
-<!-- Upload File Modal -->
 <div class="modal fade" id="uploadFileModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
