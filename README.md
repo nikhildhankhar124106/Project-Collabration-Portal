@@ -4,7 +4,7 @@ A complete web-based collaboration platform where teams can create projects, man
 
 ## Features
 
-### ✨ Core Features
+###  Core Features
 
 - **User Authentication**
   - User registration with field-specific error messages
@@ -374,4 +374,4 @@ For issues or questions, please check the code comments or create an issue in th
 
 ---
 
-**Built with Django 4.2 and Bootstrap 5** 🚀
+**Built with Django 4.2 and Bootstrap 5** 
