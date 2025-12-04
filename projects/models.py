@@ -12,6 +12,7 @@ class Project(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('archived', 'Archived'),
+        ('completed', 'Completed'),
     ]
     
     name = models.CharField(max_length=200)
@@ -33,6 +34,21 @@ class Project(models.Model):
     
     def get_task_count(self):
         return self.tasks.count()
+    
+    @property
+    def is_completed(self):
+        """Check if project is marked as completed"""
+        return self.status == 'completed'
+    
+    def mark_as_completed(self):
+        """Mark project as completed"""
+        self.status = 'completed'
+        self.save()
+    
+    def reopen(self):
+        """Reopen a completed project"""
+        self.status = 'active'
+        self.save()
 
 
 class ProjectMembership(models.Model):

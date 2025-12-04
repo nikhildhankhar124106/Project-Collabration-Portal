@@ -10,6 +10,8 @@ urlpatterns = [
     path('<int:pk>/', views.ProjectDetailView.as_view(), name='project_detail'),
     path('<int:pk>/edit/', views.ProjectUpdateView.as_view(), name='project_update'),
     path('<int:pk>/delete/', views.ProjectDeleteView.as_view(), name='project_delete'),
+    path('<int:pk>/complete/', views.mark_project_completed, name='mark_project_completed'),
+    path('<int:pk>/reopen/', views.reopen_project, name='reopen_project'),
     
     # Member management
     path('<int:pk>/members/', views.manage_members, name='manage_members'),

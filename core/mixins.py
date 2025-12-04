@@ -1,7 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404
-from projects.models import Project
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from projects.models import Project, Task
 from projects.permissions import (
     has_project_view_access,
     has_project_edit_access,
@@ -19,7 +20,26 @@ class ProjectMemberRequiredMixin(LoginRequiredMixin):
         if project_pk:
             project = get_object_or_404(Project, pk=project_pk)
             if not has_project_view_access(request.user, project):
-                raise PermissionDenied("You must be a project member to view this page.")
+                # Determine resource type and name
+                resource_type = "project"
+                resource_name = project.name
+                
+                # If accessing a task, get the task name
+                if 'task' in request.path.lower() and kwargs.get('pk'):
+                    try:
+                        task = Task.objects.get(pk=kwargs.get('pk'))
+                        resource_type = "task"
+                        resource_name = task.title
+                    except Task.DoesNotExist:
+                        pass
+                elif 'file' in request.path.lower():
+                    resource_type = "file"
+                
+                return render(request, 'projects/access_denied.html', {
+                    'project_name': project.name,
+                    'resource_type': resource_type,
+                    'resource_name': resource_name
+                })
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -32,7 +52,8 @@ class ProjectEditorRequiredMixin(LoginRequiredMixin):
         if project_pk:
             project = get_object_or_404(Project, pk=project_pk)
             if not has_project_edit_access(request.user, project):
-                raise PermissionDenied("You must be a project owner or editor to perform this action.")
+                messages.error(request, f'You do not have permission to edit this project. Only owners and editors can perform this action.')
+                return redirect('project_detail', pk=project.pk)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -45,5 +66,6 @@ class ProjectOwnerRequiredMixin(LoginRequiredMixin):
         if project_pk:
             project = get_object_or_404(Project, pk=project_pk)
             if not is_project_owner(request.user, project):
-                raise PermissionDenied("You must be the project owner to perform this action.")
+                messages.error(request, f'You do not have permission to perform this action. Only the project owner can do this.')
+                return redirect('project_detail', pk=project.pk)
         return super().dispatch(request, *args, **kwargs)

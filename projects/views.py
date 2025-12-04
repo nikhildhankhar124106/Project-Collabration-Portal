@@ -212,6 +212,14 @@ class TaskCreateView(ProjectEditorRequiredMixin, CreateView):
     form_class = TaskForm
     template_name = 'projects/task_form.html'
     
+    def dispatch(self, request, *args, **kwargs):
+        # Check if project is completed
+        project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        if project.is_completed:
+            messages.error(request, 'Cannot create tasks in a completed project. Please reopen the project first.')
+            return redirect('project_detail', pk=project.pk)
+        return super().dispatch(request, *args, **kwargs)
+    
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['project'] = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -289,12 +297,20 @@ class TaskDeleteView(ProjectEditorRequiredMixin, DeleteView):
     model = Task
     template_name = 'projects/task_confirm_delete.html'
     
+    def get(self, request, *args, **kwargs):
+        """Handle GET request - show confirmation page"""
+        return super().get(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        """Handle POST request - delete directly"""
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        messages.success(request, f'Task "{self.object.title}" deleted successfully.')
+        self.object.delete()
+        return redirect(success_url)
+    
     def get_success_url(self):
         return reverse('project_detail', kwargs={'pk': self.object.project.pk})
-    
-    def form_valid(self, form):
-        messages.success(self.request, f'Task "{self.object.title}" deleted successfully.')
-        return super().form_valid(form)
 
 
 @login_required
@@ -506,3 +522,57 @@ def get_project_members_json(request, pk):
     project = get_object_or_404(Project, pk=pk)
     members = project.members.values('id', 'username', 'first_name', 'last_name')
     return JsonResponse(list(members), safe=False)
+
+
+# NEW: Project Completion Views
+
+@login_required
+def mark_project_completed(request, pk):
+    """
+    Mark a project as completed (owner only).
+    """
+    project = get_object_or_404(Project, pk=pk)
+    
+    if not is_project_owner(request.user, project):
+        messages.error(request, 'Only the project owner can mark projects as completed.')
+        return redirect('project_detail', pk=pk)
+    
+    if request.method == 'POST':
+        project.mark_as_completed()
+        
+        # Create activity log
+        Activity.objects.create(
+            project=project,
+            user=request.user,
+            description=f'marked the project as completed'
+        )
+        
+        messages.success(request, f'Project "{project.name}" marked as completed!')
+    
+    return redirect('project_detail', pk=pk)
+
+
+@login_required
+def reopen_project(request, pk):
+    """
+    Reopen a completed project (owner only).
+    """
+    project = get_object_or_404(Project, pk=pk)
+    
+    if not is_project_owner(request.user, project):
+        messages.error(request, 'Only the project owner can reopen projects.')
+        return redirect('project_detail', pk=pk)
+    
+    if request.method == 'POST':
+        project.reopen()
+        
+        # Create activity log
+        Activity.objects.create(
+            project=project,
+            user=request.user,
+            description=f'reopened the project'
+        )
+        
+        messages.success(request, f'Project "{project.name}" reopened!')
+    
+    return redirect('project_detail', pk=pk)

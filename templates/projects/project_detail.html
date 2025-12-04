@@ -6,10 +6,16 @@
 <div class="page-header">
     <div class="d-flex justify-content-between align-items-start">
         <div>
-            <h1 class="display-6 fw-bold">{{ project.name }}</h1>
+            <h1 class="display-6 fw-bold {% if project.is_completed %}text-muted{% endif %}">
+                {{ project.name }}
+                {% if project.is_completed %}
+                <i class="bi bi-check-circle-fill text-success"></i>
+                {% endif %}
+            </h1>
             <p class="text-muted mb-0">{{ project.description }}</p>
             <div class="mt-2">
-                <span class="badge {% if project.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} me-2">
+                <span
+                    class="badge {% if project.status == 'active' %}bg-success{% elif project.status == 'completed' %}bg-info{% else %}bg-secondary{% endif %} me-2">
                     {{ project.get_status_display }}
                 </span>
                 <span class="text-muted small">
@@ -28,6 +34,28 @@
             <a href="{% url 'manage_members' project.pk %}" class="btn btn-outline-secondary">
                 <i class="bi bi-people"></i> Manage Members
             </a>
+            {% if not project.is_completed %}
+            <form method="post" action="{% url 'mark_project_completed' project.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Mark as Complete
+                </button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'reopen_project' project.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reopen
+                </button>
+            </form>
+            {% endif %}
+            <form method="post" action="{% url 'project_delete' project.pk %}" class="d-inline"
+                onsubmit="return confirm('⚠️ WARNING: This will permanently delete the project and ALL its tasks, files, and comments. This action cannot be undone. Are you absolutely sure?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </form>
             {% endif %}
         </div>
     </div>
@@ -73,37 +101,53 @@
         </div>
 
         <div class="btn-group mb-3" role="group">
-            <a href="?status=" class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">All</a>
-            <a href="?status=todo" class="btn btn-outline-secondary {% if request.GET.status == 'todo' %}active{% endif %}">To Do</a>
-            <a href="?status=in_progress" class="btn btn-outline-secondary {% if request.GET.status == 'in_progress' %}active{% endif %}">In Progress</a>
-            <a href="?status=done" class="btn btn-outline-secondary {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
+            <a href="?status="
+                class="btn btn-outline-secondary {% if not request.GET.status %}active{% endif %}">All</a>
+            <a href="?status=todo"
+                class="btn btn-outline-secondary {% if request.GET.status == 'todo' %}active{% endif %}">To Do</a>
+            <a href="?status=in_progress"
+                class="btn btn-outline-secondary {% if request.GET.status == 'in_progress' %}active{% endif %}">In
+                Progress</a>
+            <a href="?status=done"
+                class="btn btn-outline-secondary {% if request.GET.status == 'done' %}active{% endif %}">Done</a>
         </div>
 
         {% if tasks %}
         <div class="list-group">
             {% for task in tasks %}
-            <a href="{% url 'task_detail' project.pk task.pk %}" class="list-group-item list-group-item-action">
+            <div class="list-group-item">
                 <div class="d-flex w-100 justify-content-between align-items-start">
-                    <div class="flex-grow-1">
+                    <a href="{% url 'task_detail' project.pk task.pk %}"
+                        class="flex-grow-1 text-decoration-none text-dark">
                         <h6 class="mb-1">{{ task.title }}</h6>
                         <p class="mb-1 text-muted small">{{ task.description|truncatewords:15 }}</p>
                         <div class="mt-2">
                             <span class="badge {{ task.get_status_badge_class }}">{{ task.get_status_display }}</span>
-                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display }}</span>
+                            <span class="badge {{ task.get_priority_badge_class }}">{{ task.get_priority_display
+                                }}</span>
                             {% if task.due_date %}
                             <span class="badge bg-secondary"><i class="bi bi-calendar"></i> {{ task.due_date }}</span>
                             {% endif %}
                         </div>
-                    </div>
-                    <div class="text-end ms-3">
+                    </a>
+                    <div class="d-flex align-items-center ms-3">
                         {% if task.assignees.count > 0 %}
-                        <div class="small text-muted">
+                        <div class="small text-muted me-3">
                             <i class="bi bi-person-check"></i> {{ task.assignees.count }} assigned
                         </div>
                         {% endif %}
+                        {% if task.created_by == user or is_owner %}
+                        <form method="post" action="{% url 'task_delete' project.pk task.pk %}" class="d-inline"
+                            onsubmit="return confirm('Are you sure you want to delete this task? This action cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete task">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
-            </a>
+            </div>
             {% endfor %}
         </div>
         {% else %}
@@ -159,7 +203,8 @@
                             <i class="bi bi-file-earmark-fill"></i> {{ file.original_filename }}
                         </h6>
                         <small class="text-muted">
-                            Uploaded by {{ file.uploaded_by.username }}  {{ file.get_size_display }}  {{ file.uploaded_at|date:"M d, Y" }}
+                            Uploaded by {{ file.uploaded_by.username }} {{ file.get_size_display }} {{
+                            file.uploaded_at|date:"M d, Y" }}
                         </small>
                     </div>
                     <div>
@@ -169,7 +214,8 @@
                         {% if can_edit or file.uploaded_by == user %}
                         <form method="post" action="{% url 'delete_file' file.pk %}" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this file?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this file?')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -214,7 +260,8 @@
                     {% if comment.user == user or is_owner %}
                     <form method="post" action="{% url 'delete_comment' comment.pk %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete comment?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete comment?')">
                             <i class="bi bi-trash"></i>
                         </button>
                     </form>

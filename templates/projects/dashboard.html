@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block title %}Dashboard - Collab Apps{% endblock %}
 
@@ -24,12 +24,18 @@
         <div class="card h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h5 class="card-title fw-bold mb-0">
-                        <a href="{% url 'project_detail' project.pk %}" class="text-decoration-none text-dark">
+                    <h5
+                        class="card-title fw-bold mb-0 {% if project.is_completed %}text-muted text-decoration-line-through{% endif %}">
+                        <a href="{% url 'project_detail' project.pk %}"
+                            class="text-decoration-none {% if project.is_completed %}text-muted{% else %}text-dark{% endif %}">
                             {{ project.name }}
+                            {% if project.is_completed %}
+                            <i class="bi bi-check-circle-fill text-success ms-2"></i>
+                            {% endif %}
                         </a>
                     </h5>
-                    <span class="badge {% if project.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">
+                    <span
+                        class="badge {% if project.status == 'active' %}bg-success{% elif project.status == 'completed' %}bg-info{% else %}bg-secondary{% endif %}">
                         {{ project.get_status_display }}
                     </span>
                 </div>
@@ -52,9 +58,40 @@
                 </div>
             </div>
             <div class="card-footer bg-transparent border-0">
-                <a href="{% url 'project_detail' project.pk %}" class="btn btn-outline-primary w-100">
-                    <i class="bi bi-arrow-right-circle"></i> View Project
-                </a>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'project_detail' project.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-right-circle"></i> View Project
+                    </a>
+                    {% if project.owner == user %}
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'project_update' project.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        {% if not project.is_completed %}
+                        <form method="post" action="{% url 'mark_project_completed' project.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success" title="Mark as completed">
+                                <i class="bi bi-check-circle"></i> Complete
+                            </button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'reopen_project' project.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-warning" title="Reopen project">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reopen
+                            </button>
+                        </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'project_delete' project.pk %}" class="d-inline"
+                            onsubmit="return confirm('⚠️ WARNING: This will permanently delete the project and ALL its tasks, files, and comments. This action cannot be undone. Are you absolutely sure?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
