@@ -21,8 +21,8 @@ class ProjectMemberRequiredMixin(LoginRequiredMixin):
         if project_pk:
             project = get_object_or_404(Project, pk=project_pk)
             
-            # Check if this is a task-specific URL
-            if 'task' in request.path.lower() and kwargs.get('pk') and project_pk == kwargs.get('project_pk'):
+            # Check if this is a task-specific URL (has both project_pk and pk)
+            if 'task' in request.path.lower() and kwargs.get('project_pk') and kwargs.get('pk'):
                 # This is a task URL, check task-specific permissions
                 try:
                     task = Task.objects.get(pk=kwargs.get('pk'))
